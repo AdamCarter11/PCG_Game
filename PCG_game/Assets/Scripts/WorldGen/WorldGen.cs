@@ -27,35 +27,49 @@ public class WorldGen : MonoBehaviour
     //  map to contain ints representing which tiles to be placed
     int[,] map;
 
+    // attempt at making it generate in a row
+    [Header("Row Gen")]
+    [SerializeField] int numberOfChunks = 10; // Total number of chunks in the row
+    [SerializeField] float chunkSpacing = 2f; // Spacing between chunks
+    [SerializeField] float chunkSize = 2f; // Size of each chunk
+    [SerializeField] float chaosFactor = 0.0f; // Controls the level of chaos
+    int chunkStartingX = 0;
+
     private void Start()
     {
-        Generation();
+        Generation(0);
     }
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            Generation();
+            chunkStartingX += width;
+            Generation(chunkStartingX);
+            if(chaosFactor < .1)
+                chaosFactor += .01f;
         }
     }
-    void Generation()
+    void Generation(int startingX)
     {
         // we use a seed currently in case we want to have the option of seeding the world and for testing
         seed = Time.time;  
         // Clear tilemaps before generating new sprites on them
-        groundTileMap.ClearAllTiles();
-        caveTileMap.ClearAllTiles();
+
+        //  IMPORTANT IF I WANT TO CLEAR MAP (1 chunk) AT A TIME
+        //groundTileMap.ClearAllTiles();
+        //caveTileMap.ClearAllTiles();
+
         // Generate the map (array) of size width x height that contains ints representing which tile to place (air, ground or cave)
-        map = GenerateArray(width, height, true);
-        map = TerrainGeneration(map);
+        map = GenerateArray(width, height, true, startingX);
+        map = TerrainGeneration(map, startingX);
         // Places the sprites down based on the generated map
-        RenderMap(map, groundTileMap, caveTileMap, groundTile, caveTile);
+        RenderMap(map, groundTileMap, caveTileMap, groundTile, caveTile, startingX);
     }
 
-    private int[,] GenerateArray(int width, int height, bool empty)
+    private int[,] GenerateArray(int width, int height, bool empty, int startingX)
     {
-        int[,] map = new int[width, height];
-        for(int x = 0; x < width; x++)
+        int[,] map = new int[width + startingX, height];
+        for(int x = 0 + startingX; x < width + startingX; x++)
         {
             for(int y = 0; y < height; y++)
             {
@@ -76,10 +90,10 @@ public class WorldGen : MonoBehaviour
         return map;
     }
 
-    private int[,] TerrainGeneration(int[,] map)
+    private int[,] TerrainGeneration(int[,] map , int startingX)
     {
         int perlinHeight;
-        for (int x = 0; x < width; x++)
+        for (int x = 0 + startingX; x < width + startingX; x++)
         {
             // smoothness value controls how steep mountains can be, heightReduction controls total height
             perlinHeight = Mathf.RoundToInt(Mathf.PerlinNoise(x / smoothness, seed) * height / heightReduction);
@@ -90,7 +104,7 @@ public class WorldGen : MonoBehaviour
             for (int y = 0; y < perlinHeight; y++)
             {
                 //map[x, y] = 1;
-                int caveVal = Mathf.RoundToInt(Mathf.PerlinNoise((x * modifier) + seed, (y * modifier) + seed));
+                int caveVal = Mathf.RoundToInt(Mathf.PerlinNoise((x * (modifier + chaosFactor)) + seed, (y * (modifier + chaosFactor)) + seed));
                 // if caveVal is 1 then put a 2 in the map (which represents the cave sprite), if not, a 1 is placed to represent the ground sprite
                 map[x, y] = (caveVal == 1) ? 2 : 1;
             }
@@ -98,9 +112,9 @@ public class WorldGen : MonoBehaviour
         return map;
     }
 
-    private void RenderMap(int[,] map, Tilemap groundTileMap, Tilemap caveTileMap, TileBase groundTileBase, TileBase caveTile)
+    private void RenderMap(int[,] map, Tilemap groundTileMap, Tilemap caveTileMap, TileBase groundTileBase, TileBase caveTile, int startingX)
     {
-        for (int x = 0; x < width; x++)
+        for (int x = 0 + startingX; x < width + startingX; x++)
         {
             for (int y = 0; y < height; y++)
             {
