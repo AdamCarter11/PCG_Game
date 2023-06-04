@@ -35,12 +35,48 @@ public class WorldGen : MonoBehaviour
     [SerializeField] float chaosFactor = 0.0f; // Controls the level of chaos
     int chunkStartingX = 0;
 
+    private GameObject gmObject;
+    private Gamemanager gm;
+    [SerializeField] GameObject boundryObj;
+    [SerializeField] GameObject playerObj;
+    bool spawnedPlayer = false;
+
     private void Start()
     {
-        Generation(0);
+        gmObject = GameObject.FindGameObjectWithTag("GameManager");
+        if(gmObject != null)
+        {
+            gm = gmObject.GetComponent<Gamemanager>();
+            seed = Gamemanager.instance.ReturnSeed();   // TO DO: make each chunk have a different seed (so they don't all match the first chunk
+        }
+        else
+        {
+            print("gamemanger is null. Are you testing?");
+            seed = Time.time;
+        }
+        GameObject tempLeftBoundry = Instantiate(boundryObj, new Vector2(chunkStartingX, 0), Quaternion.identity);
+        tempLeftBoundry.name = "LeftBoundry";
+
+        for (int i = 0; i < numberOfChunks; i++)
+        {
+            Generation(chunkStartingX);
+            if((int)numberOfChunks/(i+1) == 2 && !spawnedPlayer)
+            {
+                spawnedPlayer = true;
+                playerObj.transform.position =  new Vector2(chunkStartingX, height);
+            }
+            /*
+            if (chaosFactor < .1)
+                chaosFactor += .01f;
+            */
+            chunkStartingX += width;
+        }
+        GameObject tempRightBoundry = Instantiate(boundryObj, new Vector2(chunkStartingX, 0), Quaternion.identity);
+        tempRightBoundry.name = "RightBoundry";
     }
     private void Update()
     {
+        /*
         if (Input.GetKeyDown(KeyCode.Space))
         {
             chunkStartingX += width;
@@ -48,11 +84,12 @@ public class WorldGen : MonoBehaviour
             if(chaosFactor < .1)
                 chaosFactor += .01f;
         }
+        */
     }
     void Generation(int startingX)
     {
         // we use a seed currently in case we want to have the option of seeding the world and for testing
-        seed = Time.time;  
+        //seed = Time.time;  
         // Clear tilemaps before generating new sprites on them
 
         //  IMPORTANT IF I WANT TO CLEAR MAP (1 chunk) AT A TIME
