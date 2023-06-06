@@ -45,6 +45,10 @@ public class GoombaMove : MonoBehaviour
             print("ground: " + groundCheck.collider);
             Flip();
         }
+        if(transform.position.y <= 0)
+        {
+            Destroy(this.gameObject);
+        }
     }
 
     private void Flip()
@@ -62,18 +66,24 @@ public class GoombaMove : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Enemy"))
         {
-            int rando = Random.Range(0, 2);
-            if(rando == 1)
-            {
-                Destroy(this.gameObject);
-            }
-            else
-            {
-                Destroy(collision.gameObject);
-            }
-            GameObject tempObj = Instantiate(enemyObj, new Vector3(transform.position.x + 2, transform.position.y, transform.position.z), Quaternion.identity);
-            tempObj.transform.localScale /= 2;
-            tempObj.GetComponent<SpriteRenderer>().color = Random.ColorHSV();
+            // TO DO: use a bool and switch it on/off on the other enemy
+            //          then spawn an egg that doesn't have a collider that hatches after a while
+            EnemyMate(collision.gameObject);
         }
+    }
+    void EnemyMate(GameObject otherObj)
+    {
+        int rando = Random.Range(0, 2);
+        if (rando == 1)
+        {
+            Destroy(this.gameObject);
+        }
+        else
+        {
+            Destroy(otherObj.gameObject);
+        }
+        GameObject tempObj = Instantiate(enemyObj, new Vector3(transform.position.x + 2, transform.position.y, transform.position.z), Quaternion.identity);
+        tempObj.transform.localScale /= 2;
+        tempObj.GetComponent<SpriteRenderer>().color = Random.ColorHSV();
     }
 }

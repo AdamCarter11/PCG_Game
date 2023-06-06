@@ -169,6 +169,7 @@ MonoBehaviour:
   boundryObj: {fileID: 6957821558439301098, guid: a573582d977d3ba45ae78bb7670e489b, type: 3}
   playerObj: {fileID: 2350386940996068126}
   enemyObj: {fileID: 2276929335722410655, guid: 200220c0b49f2494fb116c865b65a1dd, type: 3}
+  percentChanceForEnemy: 5
 --- !u!4 &1295907605
 Transform:
   m_ObjectHideFlags: 0

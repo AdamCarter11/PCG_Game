@@ -447,7 +447,7 @@ GameObject:
   - component: {fileID: 1443157412}
   - component: {fileID: 1443157411}
   - component: {fileID: 1443157415}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Player
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -532,7 +532,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1454697464}
   - component: {fileID: 1454697465}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: PlayerVisual
   m_TagString: Untagged
   m_Icon: {fileID: 0}

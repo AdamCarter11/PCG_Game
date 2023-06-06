@@ -35,11 +35,13 @@ public class WorldGen : MonoBehaviour
     [SerializeField] float chaosFactor = 0.0f; // Controls the level of chaos
     int chunkStartingX = 0;
 
+    [Header("Characters Spawning")]
     private GameObject gmObject;
     private Gamemanager gm;
     [SerializeField] GameObject boundryObj;
     [SerializeField] GameObject playerObj;
     [SerializeField] GameObject enemyObj;
+    [SerializeField] int percentChanceForEnemy;
     bool spawnedPlayer = false;
 
     private void Start()
@@ -162,7 +164,7 @@ public class WorldGen : MonoBehaviour
                     groundTileMap.SetTile(new Vector3Int(x, y, 0), groundTileBase);
                     if (map[x,y+1] == 0)
                     {
-                        if(Random.Range(0,100) == 1)
+                        if(Random.Range(0,100) <= percentChanceForEnemy)
                         {
                             Instantiate(enemyObj, new Vector2(x, y+1), Quaternion.identity);
                         }
