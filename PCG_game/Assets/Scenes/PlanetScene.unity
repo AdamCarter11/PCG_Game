@@ -168,6 +168,7 @@ MonoBehaviour:
   chaosFactor: 0
   boundryObj: {fileID: 6957821558439301098, guid: a573582d977d3ba45ae78bb7670e489b, type: 3}
   playerObj: {fileID: 2350386940996068126}
+  enemyObj: {fileID: 2276929335722410655, guid: 200220c0b49f2494fb116c865b65a1dd, type: 3}
 --- !u!4 &1295907605
 Transform:
   m_ObjectHideFlags: 0
@@ -874,7 +875,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 2
   m_Sprite: {fileID: 7482667652216324306, guid: 372ed88568a9fc243995fe1805ad6bcf, type: 3}
-  m_Color: {r: 1, g: 0.010342535, b: 0, a: 1}
+  m_Color: {r: 0, g: 0.1510973, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0

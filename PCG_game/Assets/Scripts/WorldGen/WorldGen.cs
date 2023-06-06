@@ -39,6 +39,7 @@ public class WorldGen : MonoBehaviour
     private Gamemanager gm;
     [SerializeField] GameObject boundryObj;
     [SerializeField] GameObject playerObj;
+    [SerializeField] GameObject enemyObj;
     bool spawnedPlayer = false;
 
     private void Start()
@@ -159,6 +160,13 @@ public class WorldGen : MonoBehaviour
                 {
                     // sets tile at the position of (x,y) with the specified tile. This works because the tiles are sized to match the in game grid
                     groundTileMap.SetTile(new Vector3Int(x, y, 0), groundTileBase);
+                    if (map[x,y+1] == 0)
+                    {
+                        if(Random.Range(0,100) == 1)
+                        {
+                            Instantiate(enemyObj, new Vector2(x, y+1), Quaternion.identity);
+                        }
+                    }
                 }
                 else if (map[x,y] == 2)
                 {
