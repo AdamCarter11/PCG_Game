@@ -166,7 +166,7 @@ public class WorldGen : MonoBehaviour
                     {
                         if(Random.Range(0,100) <= percentChanceForEnemy)
                         {
-                            Instantiate(enemyObj, new Vector2(x, y+1), Quaternion.identity);
+                            Instantiate(enemyObj, new Vector2(x, y+2), Quaternion.identity);
                         }
                     }
                 }

@@ -14,6 +14,7 @@ public class PlanetScript : MonoBehaviour
     {
         displayPanel = GameObject.FindGameObjectWithTag("DisplayPanel");
         displayText = GameObject.FindGameObjectWithTag("DisplayText").GetComponent<TMP_Text>();
+        GetComponent<SpriteRenderer>().color = new Color(Random.value, Random.value, Random.value);
     }
     private void Update()
     {

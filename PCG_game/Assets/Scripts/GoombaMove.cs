@@ -13,11 +13,25 @@ public class GoombaMove : MonoBehaviour
     [SerializeField] GameObject enemyObj;
     private bool isMovingRight = true; // Indicates if the Goomba is moving right or left
     private int moveDirection = 1;
+    bool canSpawn = true;
 
     private Rigidbody2D rb;
+
+    //scaling vars
+    private Vector2 targetScale; // The final scale you want to reach
+    private float duration = 2f; // The duration in seconds to reach the target scale
+
+    private Vector3 initialScale;
+    private float elapsedTime = 0f;
+    private bool isScaling = false;
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+    }
+    private void Start()
+    {
+        targetScale = new Vector3(.8f, .8f, 1);
     }
 
     private void FixedUpdate()
@@ -50,6 +64,10 @@ public class GoombaMove : MonoBehaviour
             Destroy(this.gameObject);
         }
     }
+    private void Update()
+    {
+        ScalingLogic();
+    }
 
     private void Flip()
     {
@@ -68,22 +86,59 @@ public class GoombaMove : MonoBehaviour
         {
             // TO DO: use a bool and switch it on/off on the other enemy
             //          then spawn an egg that doesn't have a collider that hatches after a while
-            EnemyMate(collision.gameObject);
+            if(!Vector3.Equals(collision.transform.localScale, transform.localScale))
+            {
+                
+                collision.gameObject.GetComponent<GoombaMove>().changeSpawnVal();
+                EnemyMate(collision.gameObject);
+            }
         }
     }
     void EnemyMate(GameObject otherObj)
     {
-        int rando = Random.Range(0, 2);
-        if (rando == 1)
+        // TO DO: fix this, why is this running on a spawned enemy
+        print("Goomba collision");
+        if (canSpawn)
         {
             Destroy(this.gameObject);
+            Destroy(otherObj);
+            GameObject tempObj = Instantiate(enemyObj, transform.position, Quaternion.identity);
         }
-        else
+        //tempObj.transform.localScale /= 2;
+        //tempObj.GetComponent<SpriteRenderer>().color = Random.ColorHSV();
+    }
+    public void changeSpawnVal()
+    {
+        canSpawn = false;
+    }
+    private void ScalingLogic()
+    {
+        if (isScaling)
         {
-            Destroy(otherObj.gameObject);
+            // Increase the elapsed time since the scaling started
+            elapsedTime += Time.deltaTime;
+
+            // Calculate the interpolation factor based on the elapsed time and duration
+            float t = Mathf.Clamp01(elapsedTime / duration);
+
+            // Interpolate the scale between the initial and target scale using Lerp
+            transform.localScale = Vector3.Lerp(initialScale, targetScale, t);
+
+            // Check if the scaling is complete
+            if (t >= 1f)
+            {
+                isScaling = false;
+                GameObject tempEnemy = Instantiate(enemyObj, transform.position, Quaternion.identity);
+                tempEnemy.transform.localScale /= 2;
+                tempEnemy.GetComponent<SpriteRenderer>().color = GetComponent<SpriteRenderer>().color;
+                Destroy(this.gameObject);
+            }
         }
-        GameObject tempObj = Instantiate(enemyObj, new Vector3(transform.position.x + 2, transform.position.y, transform.position.z), Quaternion.identity);
-        tempObj.transform.localScale /= 2;
-        tempObj.GetComponent<SpriteRenderer>().color = Random.ColorHSV();
+    }
+    public void StartScaling()
+    {
+        // Reset the elapsed time and enable scaling
+        elapsedTime = 0f;
+        isScaling = true;
     }
 }
