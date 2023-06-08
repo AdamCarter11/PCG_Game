@@ -153,3 +153,4 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 320
   enemyObj: {fileID: 5359491122751147833, guid: 2866bda1934b95347be86f1d07e7e573, type: 3}
+  freezeTime: 5

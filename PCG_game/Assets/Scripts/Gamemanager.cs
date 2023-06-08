@@ -2,13 +2,18 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using UnityEngine.SceneManagement;
 public struct WorldStruct
 {
     public float seed;
     public float size;
     public int creatureAmount;
     public List<string> creatures; //  TO DO: make the string an actual creature class
+    
+    // space scene planet saves
+    public float scaleMulti;
+    public Vector2 posOfPlanet;
+    public Color planetColor;
 }
 
 public class Gamemanager : MonoBehaviour
@@ -24,8 +29,9 @@ public class Gamemanager : MonoBehaviour
     //[SerializeField] int numberOfObjects;
     [SerializeField] float spawnRadius;
     [SerializeField] float centerWeight;
-    private List<GameObject> spawnedObjects = new List<GameObject>();
+    private List<GameObject> spawnedPlanets = new List<GameObject>();
     [HideInInspector] public static int whichPlanetToLoad;
+    public static Color goalColor;
 
     private void Awake()
     {
@@ -45,6 +51,26 @@ public class Gamemanager : MonoBehaviour
         GenerateWorlds();
         //OutputWorldsData();
         SpawnObjects();
+        goalColor = new Color(UnityEngine.Random.value, UnityEngine.Random.value, UnityEngine.Random.value);
+    }
+    private void OnEnable()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if (scene.name == "SpaceScene")
+        {
+            SpawnObjects();
+        }
+    }
+    private void RespawnPlanets()
+    {
+        print("respawnPlanets");
+        foreach(GameObject tempPlanet in spawnedPlanets)
+        {
+            Instantiate(tempPlanet);
+        }
     }
     public float ReturnSeed()
     {
@@ -70,6 +96,8 @@ public class Gamemanager : MonoBehaviour
             UnityEngine.Random.InitState(seed);
             worldStruct.size = UnityEngine.Random.Range(1f, 3f);
             worldStruct.creatureAmount = UnityEngine.Random.Range(1, 5);
+            worldStruct.scaleMulti = UnityEngine.Random.Range(1f, 3f);
+            worldStruct.planetColor = new Color(UnityEngine.Random.value, UnityEngine.Random.value, UnityEngine.Random.value);
             worldStruct.creatures = new List<string>();
             // TO DO: Add creatures to the worldStruct.creatures list
 
@@ -109,8 +137,9 @@ public class Gamemanager : MonoBehaviour
             Vector2 spawnPosition = GetPolarToCartesian(currentAngle, weightedRadius);
 
             // Check for overlapping
+            print("world size: " + worldsList[i].size);
             float worldSize = worldsList[i].size;
-            bool isOverlapping = IsOverlapping(spawnPosition, spawnPositions, worldSize);
+            bool isOverlapping = IsOverlapping(spawnPosition, spawnPositions, worldSize); // this is checking the wrong var
             if (isOverlapping)
             {
                 i--;
@@ -118,10 +147,13 @@ public class Gamemanager : MonoBehaviour
             }
             //print("OVERLAPPING: " + isOverlapping);
             // Spawn object at the calculated position
+
             GameObject spawnedObject = Instantiate(objectPrefab, spawnPosition, Quaternion.identity);
             spawnedObject.name = "Planet: " + i;
-            spawnedObject.transform.localScale *= worldSize;
+            spawnedObject.transform.localScale *= worldsList[i].scaleMulti;
             spawnedObject.GetComponent<PlanetScript>().planetData = worldsList[i];
+            spawnedObject.GetComponent<SpriteRenderer>().color = worldsList[i].planetColor;
+            //spawnedPlanets.Add(spawnedObject);
             // Add any additional logic for configuring the spawned object
 
             spawnPositions.Add(spawnPosition);

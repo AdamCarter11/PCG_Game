@@ -1,5 +1,6 @@
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.Tilemaps;
 
 [RequireComponent(typeof(Rigidbody2D))]
@@ -23,6 +24,7 @@ public class PlayerMovement : MonoBehaviour
     private bool isJumping = false;
     private bool canDash = true;
     private bool canMove = true;
+    bool canLeave = false;
 
     Vector2 startingPos;
 
@@ -38,22 +40,46 @@ public class PlayerMovement : MonoBehaviour
 
     private void Update()
     {
-        if(transform.position.y <= 0)
+        RespawnLogic();
+        MoveLogic();
+        TileDestruction();
+        JumpLogic();
+
+        // trigger leave
+        if(canLeave && Input.GetKeyDown(KeyCode.Q))
         {
-            transform.position = startingPos;
+            SceneManager.LoadScene("SpaceScene");
         }
+
+        // trigger dash
+        if (Input.GetKeyDown(KeyCode.LeftShift) && canDash)
+        {
+            Dash();
+        }
+    }
+
+    private void MoveLogic()
+    {
         if (canMove)
         {
-            
+
             float moveInput = Input.GetAxis("Horizontal");
             float moveSpeedMultiplier = Input.GetKeyDown(KeyCode.LeftShift) ? dashSpeedMultiplier : 1f;
 
             Vector2 movement = new Vector2(moveInput * moveSpeed * moveSpeedMultiplier, rb.velocity.y);
             rb.velocity = movement;
         }
-
+    }
+    private void RespawnLogic()
+    {
+        if (transform.position.y <= 0)
+        {
+            transform.position = startingPos;
+        }
+    }
+    private void JumpLogic()
+    {
         isGrounded = IsGrounded();
-        TileDestruction();
 
         if (isGrounded)
         {
@@ -72,13 +98,7 @@ public class PlayerMovement : MonoBehaviour
                 airJumpsRemaining--;
             }
         }
-
-        if (Input.GetKeyDown(KeyCode.LeftShift) && canDash)
-        {
-            Dash();
-        }
     }
-
     private void Jump()
     {
         rb.velocity = new Vector2(rb.velocity.x, jumpForce);
@@ -135,6 +155,20 @@ public class PlayerMovement : MonoBehaviour
                 }
             }
             
+        }
+    }
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.gameObject.CompareTag("LeaveShip"))
+        {
+            canLeave = true;
+        }
+    }
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        if (collision.gameObject.CompareTag("LeaveShip"))
+        {
+            canLeave = false;
         }
     }
 }

@@ -11,6 +11,7 @@ public class GoombaMove : MonoBehaviour
     [SerializeField] float raycastDistance = 0.5f; // The distance of the raycast
     [SerializeField] LayerMask rayCastMask;
     [SerializeField] GameObject enemyObj;
+    [SerializeField] float freezeTime;
     private bool isMovingRight = true; // Indicates if the Goomba is moving right or left
     private int moveDirection = 1;
     bool canSpawn = true;
@@ -24,6 +25,9 @@ public class GoombaMove : MonoBehaviour
     private Vector3 initialScale;
     private float elapsedTime = 0f;
     private bool isScaling = false;
+    bool canMove = true;
+    Transform objectToFollow;
+    Vector3 offset;
 
     private void Awake()
     {
@@ -35,6 +39,20 @@ public class GoombaMove : MonoBehaviour
     }
 
     private void FixedUpdate()
+    {
+        if (canMove)
+        {
+            MoveFlipLogic();
+        }
+        else
+        {
+            rb.velocity = Vector2.zero;
+            rb.MovePosition(objectToFollow.position + offset);
+        }
+            
+    }
+
+    private void MoveFlipLogic()
     {
         // Move the Goomba horizontally
         rb.velocity = new Vector2(moveSpeed * moveDirection, rb.velocity.y);
@@ -54,12 +72,12 @@ public class GoombaMove : MonoBehaviour
 
         RaycastHit2D groundCheck = Physics2D.Raycast(transform.position, new Vector2(moveDirection, -1), raycastDistance * 2, rayCastMask);
         Debug.DrawRay(transform.position, new Vector2(moveDirection, -1) * raycastDistance * 2, Color.blue);
-        if(groundCheck.collider == null)
+        if (groundCheck.collider == null)
         {
             print("ground: " + groundCheck.collider);
             Flip();
         }
-        if(transform.position.y <= 0)
+        if (transform.position.y <= 0)
         {
             Destroy(this.gameObject);
         }
@@ -93,6 +111,26 @@ public class GoombaMove : MonoBehaviour
                 EnemyMate(collision.gameObject);
             }
         }
+        if (collision.gameObject.CompareTag("Player"))
+        {
+            Vector3 collisionNormal = collision.contacts[0].normal;
+            if(Mathf.Abs(collisionNormal.y) < 0.5f)
+            {
+                print("player goomba collision");
+                objectToFollow = collision.transform;
+                offset = transform.position - objectToFollow.position;
+                StartCoroutine(freezeGoomba(collision.gameObject));
+            }
+            
+        }
+    }
+    IEnumerator freezeGoomba(GameObject targetToFollow)
+    {
+        canMove = false;
+        transform.SetParent(targetToFollow.transform);
+        yield return new WaitForSeconds(freezeTime);
+        transform.SetParent(null);
+        canMove = true;
     }
     void EnemyMate(GameObject otherObj)
     {

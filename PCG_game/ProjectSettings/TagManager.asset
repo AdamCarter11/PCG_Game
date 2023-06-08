@@ -12,6 +12,8 @@ TagManager:
   - Undefined
   - Enemy
   - Egg
+  - Station
+  - LeaveShip
   layers:
   - Default
   - TransparentFX

@@ -41,8 +41,11 @@ public class WorldGen : MonoBehaviour
     [SerializeField] GameObject boundryObj;
     [SerializeField] GameObject playerObj;
     [SerializeField] GameObject enemyObj;
+    [SerializeField] GameObject shipObj;
     [SerializeField] int percentChanceForEnemy;
     bool spawnedPlayer = false;
+    bool spawnedShip = false;
+    int playerSpawnedX = -1;
 
     private void Start()
     {
@@ -62,12 +65,13 @@ public class WorldGen : MonoBehaviour
 
         for (int i = 0; i < numberOfChunks; i++)
         {
-            Generation(chunkStartingX);
-            if((int)numberOfChunks/(i+1) == 2 && !spawnedPlayer)
+            if ((int)numberOfChunks / (i + 1) == 2 && !spawnedPlayer)
             {
                 spawnedPlayer = true;
-                playerObj.transform.position =  new Vector2(chunkStartingX, height);
+                playerObj.transform.position = new Vector2(chunkStartingX, height);
+                playerSpawnedX = chunkStartingX;
             }
+            Generation(chunkStartingX);
             /*
             if (chaosFactor < .1)
                 chaosFactor += .01f;
@@ -164,11 +168,17 @@ public class WorldGen : MonoBehaviour
                     groundTileMap.SetTile(new Vector3Int(x, y, 0), groundTileBase);
                     if (map[x,y+1] == 0)
                     {
-                        if(Random.Range(0,100) <= percentChanceForEnemy)
+                        if (!spawnedShip && x == playerSpawnedX)
+                        {
+                            spawnedShip = true;
+                            shipObj.transform.position = new Vector2(playerSpawnedX, y + 2);
+                        }
+                        if (Random.Range(0,100) <= percentChanceForEnemy)
                         {
                             Instantiate(enemyObj, new Vector2(x, y+2), Quaternion.identity);
                         }
                     }
+                    
                 }
                 else if (map[x,y] == 2)
                 {
